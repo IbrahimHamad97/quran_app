@@ -1,7 +1,7 @@
 name: quran_app
 description: Offline Quran and tafsir reader (Arabic text, page markers, Ibn Kathir / Jalalayn / Mukhtasar in AR+EN).
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.0
 
 environment:
   sdk: ^3.6.0
@@ -23,10 +23,27 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   sqflite_common_ffi: ^2.3.4
+  flutter_launcher_icons: ^0.14.4
 
 # flutter_html 3.0.0 still calls qs.matches(), removed in html 0.15.7.
 dependency_overrides:
   html: 0.15.6
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/branding/app_icon.jpg
+  adaptive_icon_background: "#0B3D2E"
+  adaptive_icon_foreground: assets/branding/app_icon.jpg
+  web:
+    generate: true
+    image_path: assets/branding/app_icon.jpg
+  windows:
+    generate: true
+    image_path: assets/branding/app_icon.jpg
+  macos:
+    generate: true
+    image_path: assets/branding/app_icon.jpg
 
 flutter:
   uses-material-design: true

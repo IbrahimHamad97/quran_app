@@ -91,8 +91,8 @@ version: 1.0.0+1
 
 | Asset | Notes |
 |-------|--------|
-| App icon | 512×512 PNG (Play Console) |
-| Feature graphic | 1024×500 |
+| App icon | Use `assets/branding/play_store_icon.png` (512×512) |
+| Feature graphic | 1024×500 (still need to create) |
 | Screenshots | At least 2 phone screenshots |
 | Short description | ≤80 characters |
 | Full description | Features + that content is offline |
@@ -126,17 +126,19 @@ flutter install --release
 
 ---
 
-## 3. Privacy policy (short text you can host)
+## 3. Privacy policy
 
-Host this on GitHub Pages, Notion public page, Google Doc “anyone with link”, etc., then paste the URL in Play Console.
+Full page: [`docs/privacy-policy.html`](docs/privacy-policy.html)
 
-Suggested text:
+1. Replace `REPLACE_WITH_YOUR_EMAIL` in that file with your real contact email.
+2. Push to GitHub, then enable **Pages**: repo → Settings → Pages → Branch `main` / folder `/docs`.
+3. URL to paste in Play Console:
 
-> **Privacy Policy — Quran & Tafsir**  
-> This app works offline. It does not require an account and does not collect personal data, analytics, or advertising IDs.  
-> Bookmarks, notes, reading position, and settings are stored only on your device.  
-> No data is sent to our servers (there are none).  
-> Contact: [your email]
+```text
+https://ibrahimhamad97.github.io/quran_app/privacy-policy.html
+```
+
+(Faster alternative: paste the same content into a Google Doc → Share → Anyone with the link → copy that URL.)
 
 ---
 
