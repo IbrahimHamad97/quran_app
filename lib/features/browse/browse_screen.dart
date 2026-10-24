@@ -22,34 +22,10 @@ class BrowseScreen extends ConsumerWidget {
   }
 
   Future<void> _promptPage(BuildContext context, WidgetRef ref) async {
-    final controller = TextEditingController();
     final page = await showDialog<int>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Go to page'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Madani page (1–604)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.pop(context, int.tryParse(controller.text.trim())),
-            child: const Text('Open'),
-          ),
-        ],
-      ),
+      builder: (context) => const _GoToPageDialog(),
     );
-    controller.dispose();
     if (page == null || !context.mounted) return;
     if (page < 1 || page > 604) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,6 +99,53 @@ class BrowseScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Owns the text controller so Cancel never disposes it while still attached.
+class _GoToPageDialog extends StatefulWidget {
+  const _GoToPageDialog();
+
+  @override
+  State<_GoToPageDialog> createState() => _GoToPageDialogState();
+}
+
+class _GoToPageDialogState extends State<_GoToPageDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Go to page'),
+      content: TextField(
+        controller: _controller,
+        keyboardType: TextInputType.number,
+        autofocus: true,
+        decoration: const InputDecoration(
+          labelText: 'Madani page (1–604)',
+          border: OutlineInputBorder(),
+        ),
+        onSubmitted: (_) =>
+            Navigator.pop(context, int.tryParse(_controller.text.trim())),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () =>
+              Navigator.pop(context, int.tryParse(_controller.text.trim())),
+          child: const Text('Open'),
+        ),
+      ],
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/preferences.dart';
 import '../../data/models/models.dart';
+import '../../data/repositories/quran_repository.dart';
 import '../../data/repositories/tafsir_repository.dart';
 
 Future<void> showTafsirSheet({
@@ -67,7 +68,6 @@ class _TafsirSheetState extends ConsumerState<TafsirSheet> {
     try {
       final repo = ref.read(tafsirRepositoryProvider);
       final editions = await repo.getEditions(language: _language);
-      // Prefer matching language; if current slug wrong language, pick first.
       final hasCurrent = editions.any((e) => e.slug == _editionSlug);
       if (!hasCurrent && editions.isNotEmpty) {
         _editionSlug = editions.first.slug;
@@ -101,6 +101,14 @@ class _TafsirSheetState extends ConsumerState<TafsirSheet> {
   Widget build(BuildContext context) {
     final fontSize = ref.watch(tafsirFontSizeProvider);
     final isRtl = _language == 'ar';
+    final surahsAsync = ref.watch(surahsProvider);
+    final surahName = surahsAsync.maybeWhen(
+      data: (list) {
+        final match = list.where((s) => s.number == widget.ayah.surah);
+        return match.isEmpty ? 'Surah ${widget.ayah.surah}' : match.first.nameEn;
+      },
+      orElse: () => 'Surah ${widget.ayah.surah}',
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -119,36 +127,32 @@ class _TafsirSheetState extends ConsumerState<TafsirSheet> {
             ),
           ),
           Text(
-            'Tafsir · ${widget.ayah.key}',
+            'Tafsir',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           Text(
-            widget.ayah.text,
-            textDirection: TextDirection.rtl,
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontFamily: 'UthmanicHafs',
-              fontSize: 22,
-              height: 1.8,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            '$surahName · ${widget.ayah.key}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'en', label: Text('EN')),
-                  ButtonSegment(value: 'ar', label: Text('AR')),
-                ],
-                selected: {_language},
-                onSelectionChanged: (s) {
-                  _language = s.first;
-                  _load();
-                },
+              Flexible(
+                child: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'en', label: Text('EN')),
+                    ButtonSegment(value: 'ar', label: Text('AR')),
+                  ],
+                  selected: {_language},
+                  onSelectionChanged: (s) {
+                    _language = s.first;
+                    _load();
+                  },
+                ),
               ),
-              const Spacer(),
               IconButton(
                 tooltip: 'Zoom out',
                 onPressed: () =>
@@ -169,6 +173,7 @@ class _TafsirSheetState extends ConsumerState<TafsirSheet> {
               value: _editions.any((e) => e.slug == _editionSlug)
                   ? _editionSlug
                   : _editions.first.slug,
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Edition',
                 border: OutlineInputBorder(),

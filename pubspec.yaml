@@ -1,7 +1,7 @@
 name: quran_app
 description: Offline Quran and tafsir reader (Arabic text, page markers, Ibn Kathir / Jalalayn / Mukhtasar in AR+EN).
 publish_to: "none"
-version: 1.0.0
+version: 1.0.0+4
 
 environment:
   sdk: ^3.6.0
@@ -17,6 +17,7 @@ dependencies:
   path_provider: ^2.1.4
   flutter_html: ^3.0.0-beta.2
   path: ^1.9.0
+  scrollable_positioned_list: ^0.3.8
 
 dev_dependencies:
   flutter_test:

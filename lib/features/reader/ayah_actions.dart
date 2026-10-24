@@ -12,40 +12,13 @@ Future<void> showAyahNoteEditor({
   required Ayah ayah,
 }) async {
   final existing = ref.read(userLibraryProvider.notifier).noteFor(ayah.key);
-  final controller = TextEditingController(text: existing);
   final saved = await showDialog<String>(
     context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text('Note · ${ayah.key}'),
-        content: TextField(
-          controller: controller,
-          maxLines: 6,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Write a personal note for this ayah…',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          if (existing.trim().isNotEmpty)
-            TextButton(
-              onPressed: () => Navigator.pop(context, ''),
-              child: const Text('Clear'),
-            ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
+    builder: (context) => _AyahNoteDialog(
+      ayahKey: ayah.key,
+      initialText: existing,
+    ),
   );
-  controller.dispose();
   if (saved == null) return;
   await ref.read(userLibraryProvider.notifier).setNote(ayah.key, saved);
   if (!context.mounted) return;
@@ -56,6 +29,68 @@ Future<void> showAyahNoteEditor({
       ),
     ),
   );
+}
+
+/// Owns the text controller so Save/Cancel never dispose it while still attached.
+class _AyahNoteDialog extends StatefulWidget {
+  const _AyahNoteDialog({
+    required this.ayahKey,
+    required this.initialText,
+  });
+
+  final String ayahKey;
+  final String initialText;
+
+  @override
+  State<_AyahNoteDialog> createState() => _AyahNoteDialogState();
+}
+
+class _AyahNoteDialogState extends State<_AyahNoteDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialText);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final canClear = widget.initialText.trim().isNotEmpty;
+    return AlertDialog(
+      title: Text('Note · ${widget.ayahKey}'),
+      content: TextField(
+        controller: _controller,
+        maxLines: 6,
+        autofocus: true,
+        decoration: const InputDecoration(
+          hintText: 'Write a personal note for this ayah…',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        if (canClear)
+          TextButton(
+            onPressed: () => Navigator.pop(context, ''),
+            child: const Text('Clear'),
+          ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
 }
 
 class AyahActionBar extends ConsumerWidget {
